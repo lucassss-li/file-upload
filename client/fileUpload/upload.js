@@ -1,29 +1,13 @@
 import config from '../config.js'
-import { md5 } from '../../utils/md5.js'
-const { url, perSize, parallel } = config
+const { url, perSize } = config
 
-function sliceFile(file) {
-  const fileArr = []
-  let totalSize = file.size
-  let start = 0
-  while (totalSize > 0) {
-    fileArr.push(file.slice(start, perSize, file.type))
-    start += perSize
-    totalSize -= perSize
-  }
-  return fileArr
-}
-
-export async function upload(file) {
-  const fileText = await file.text()
-  const hash = md5(fileText)
-  const files = sliceFile(file)
-  await startUpload(hash, files, file.name)
+export async function upload(hash, files, filename) {
+  await startUpload(hash, files, filename)
   let index = 0
   _upload(hash, index, files[index])
 }
 
-async function startUpload(hash, files, filename) {
+async function startUpload(hash, files, filename, map) {
   const res = await fetch(url + '/startUpload', {
     mode: 'cors',
     method: 'post',
