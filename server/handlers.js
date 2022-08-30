@@ -1,5 +1,6 @@
 import { FileReceiver } from './FileReceiver.js'
 import { parseQuery } from '../utils/parseQuery.js'
+import { Buffer } from 'buffer'
 
 const map = {}
 
@@ -17,8 +18,12 @@ export function startUpload(req, res) {
   req.on('end', data => {
     data && (chunk += data)
     const config = JSON.parse(chunk)
-    const fileReceiver = new FileReceiver(config)
-    map[config.hash] = fileReceiver
+    if (!map[config.hash]) {
+      const fileReceiver = new FileReceiver(config, () => {
+        map[config.hash] = null
+      })
+      map[config.hash] = fileReceiver
+    }
     res.end(JSON.stringify({ init: true }))
   })
 }
@@ -26,16 +31,15 @@ export function startUpload(req, res) {
 export function upload(req, res) {
   const params = parseQuery(req.url)
   const { hash, index } = params
-  let chunk = ''
+  let chunks = []
   req.on('data', data => {
-    chunk += data
+    chunks.push(data)
   })
   req.on('end', data => {
-    data && (chunk += data)
+    data && chunks.push(data)
     const fr = map[hash]
-    fr.data[index] = chunk
+    fr.data[index] = Buffer.concat(chunks)
     fr.currentCount++
-    console.log(fr)
     res.end(JSON.stringify(params))
   })
 }

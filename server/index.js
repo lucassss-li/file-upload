@@ -1,5 +1,4 @@
 import { createServer } from 'http'
-// import { createWriteStream } from 'fs'
 
 import { startUpload, upload, cors } from './handlers.js'
 
@@ -23,21 +22,6 @@ server.on('request', (req, res) => {
       break
     }
   }
-
-  //   if (req.method === 'POST') {
-  //     const ws = createWriteStream('./data.jpeg', {
-  //       encoding: 'utf-8',
-  //     })
-  //     req.on('data', data => {
-  //       ws.write(data, 'utf-8')
-  //     })
-  //     req.on('end', data => {
-  //       data && ws.write(data, 'utf-8')
-  //       ws.end()
-  //       cors(req)
-  //       res.end(JSON.stringify({ upload: true }))
-  //     })
-  //   }
 })
 
 server.listen('9999', () => {

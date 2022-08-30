@@ -22,7 +22,15 @@
     <script type="module">
       import { uploadFile } from './fileUpload/index.js'
       const btn = document.querySelector('.button')
-      btn.addEventListener('click', uploadFile)
+      btn.addEventListener('click', () => {
+        uploadFile()
+          .then(res => {
+            console.log(res)
+          })
+          .catch(err => {
+            console.log('error', err)
+          })
+      })
     </script>
   </body>
 </html>

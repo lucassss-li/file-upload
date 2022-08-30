@@ -2,7 +2,6 @@ import { selectFile } from './selectFile.js'
 import { upload } from './upload.js'
 import { sliceFile } from './sliceFile.js'
 import { md5 } from '../../utils/md5.js'
-import { MyMap } from './MyMap.js'
 
 export async function uploadFile() {
   let map, hash
@@ -12,21 +11,22 @@ export async function uploadFile() {
     hash = md5(fileText)
     const files = sliceFile(file)
     map = createMap(hash, files.length)
-    const res = upload(hash, files, file.name, map)
+    const res = await upload(hash, files, file.name, map)
+    localStorage.removeItem(hash)
     return res
   } catch (error) {
-    // TODO:上传失败，使用localStorage存储上传信息
+    map = map.map(el => (el === 2 ? 0 : el))
+    localStorage.setItem(hash, map.join('&'))
     return Promise.reject(error)
   }
 }
 
 function createMap(hash, n) {
   let map = localStorage.getItem(hash)
-  if (!map) {
-    map = new MyMap()
-    for (let i = 0; i < n; i++) {
-      map.set(i, false)
-    }
+  if (map) {
+    map = map.split('&').map(el => +el)
+  } else {
+    map = Array(n).fill(0)
   }
   return map
 }
