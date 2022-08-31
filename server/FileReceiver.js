@@ -12,8 +12,10 @@ export class FileReceiver {
     this.data = Array(count).fill(0)
     this.clear = clear
   }
+  //STEP:每次接收文件切片时，设置currentCount值，触发拦截器
   set currentCount(n) {
     this._currentCount = n
+    //STEP:当所有分片接受完后，开始写入文件
     if (this.data.every(el => el !== 0)) {
       this.write()
     }
@@ -22,12 +24,13 @@ export class FileReceiver {
     return this._currentCount
   }
   write() {
+    //STEP:将文件分片进行重新组合
     const data = Buffer.concat(this.data)
-    if (!existsSync(resolve('../images/'))) {
-      mkdirSync(resolve('../images/'))
+    if (!existsSync(resolve('../files/'))) {
+      mkdirSync(resolve('../files/'))
     }
     writeFile(
-      resolve('../images/' + this.filename),
+      resolve('../files/' + this.filename),
       data,
       { encoding: 'utf-8' },
       () => {
